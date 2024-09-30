@@ -41,17 +41,12 @@ page {
     885544 >
     885544 = USER
     885544 {
-        typeNum = 88889
+        //typeNum = 88889
         userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-        pluginName = Nsprotectsite
+        pluginName = NsprotectsiteLoad
         extensionName = NsProtectSite
         controller = ProtectPages
         vendorName = Nitsan
-        switchableControllerActions {
-            ProtectPages {
-                1 = load
-            }
-        }
     }
 }
 
@@ -68,15 +63,11 @@ loginAction {
     10 = USER
     10 {
         userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-        pluginName = Nsprotectsite
+        pluginName = NsprotectsiteLogin
         extensionName = NsProtectSite
         controller = ProtectPages
         vendorName = Nitsan
-        switchableControllerActions {
-            ProtectPages {
-                1 = login
-            }
-        }
+
     }
 }
 
@@ -105,14 +96,10 @@ formAction {
     10 = USER
     10 {
         userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-        pluginName = Nsprotectsite
+        pluginName = NsprotectsiteForm
         extensionName = NsProtectSite
         controller = ProtectPages
         vendorName = Nitsan
-        switchableControllerActions {
-            ProtectPages {
-                1 = form
-            }
-        }
+
     }
 }
