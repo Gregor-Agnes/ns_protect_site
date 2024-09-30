@@ -1,6 +1,7 @@
 <?php
 namespace Nitsan\NsProtectSite\Controller;
 
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -28,7 +29,7 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      *
      * @return bool
      */
-    public function loadAction()
+    public function loadAction(): ResponseInterface
     {
         $data = $GLOBALS['TSFE']->page;
         $pageUid = $data['uid'];
@@ -45,7 +46,8 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
                     ->setArguments(['type' => '88889'])
                     ->setCreateAbsoluteUri(true)
                     ->build();
-                $this->redirectToUri($uri);
+                return $this->responseFactory->createResponse(307)
+                    ->withHeader('Location', $uri);
             }
         }
         return true;
@@ -57,27 +59,19 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      * @return void
      * @throws InvalidPasswordHashException|StopActionException
      */
-    public function loginAction()
+    public function loginAction(): ResponseInterface
     {
-        $params = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('tx_nsprotectsite_nsprotectsite');
-
+        $params = $this->request->getParsedBody()['tx_nsprotectsite_nsprotectsiteform'];
+        
         $data = $GLOBALS['TSFE']->page;
         $saltedPassword = $data['tx_nsprotectsite_protect_password'];
         $pass = $params['pass'];
 
         $success = false;
         if ($GLOBALS['TYPO3_CONF_VARS']['BE']['loginSecurityLevel'] == 'rsa') {
-            if (version_compare(TYPO3_branch, '9.4', '<')) {
-                if (\TYPO3\CMS\Saltedpasswords\Utility\SaltedPasswordsUtility::isUsageEnabled('FE')) {
-                    $objSalt = \TYPO3\CMS\Saltedpasswords\Salt\SaltFactory::getSaltingInstance(NULL);
-                    if (is_object($objSalt)) {
-                        $saltedPassword = $objSalt->getHashedPassword($saltedPassword);
-                    }
-                }
-                $objSalt = \TYPO3\CMS\Saltedpasswords\Salt\SaltFactory::getSaltingInstance($saltedPassword, 'BE');
-            } else {
+           
                 $objSalt = (new \TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory)->get($saltedPassword, 'BE');
-            }
+            
             if (is_object($objSalt)) {
                 $success = $objSalt->checkPassword($pass, $saltedPassword);
             }
@@ -92,19 +86,10 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
                 $success = true;
             }
         } else {
-            if (version_compare(TYPO3_branch, '9.4', '<')) {
-                if (\TYPO3\CMS\Saltedpasswords\Utility\SaltedPasswordsUtility::isUsageEnabled('FE')) {
-                    $objSalt = \TYPO3\CMS\Saltedpasswords\Salt\SaltFactory::getSaltingInstance(NULL);
-                    if (is_object($objSalt)) {
-                        $saltedPassword = $objSalt->getHashedPassword($saltedPassword);
-                    }
-                }
-                $objSalt = \TYPO3\CMS\Saltedpasswords\Salt\SaltFactory::getSaltingInstance($saltedPassword, 'BE');
-            } else {
+            
                 $objSalt = (new \TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory)->get($saltedPassword, 'BE');
-            }
             if (is_object($objSalt)) {
-                $success = $objSalt->checkPassword($pass, $saltedPassword);
+                $success = $objSalt->checkPassword((string) $pass, $saltedPassword);
             }
         }
 
@@ -117,7 +102,8 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
                 ->setTargetPageUid($pageUid)
                 ->setCreateAbsoluteUri(true)
                 ->build();
-            $this->redirectToUri($uri);
+            return $this->responseFactory->createResponse(307)
+                ->withHeader('Location', $uri);
         } else {
             $pageUid = $data['uid'];
             $uriBuilder = $this->uriBuilder;
@@ -126,7 +112,8 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
                 ->setArguments(['type' => '88889', 'inavlid' => '1'])
                 ->setCreateAbsoluteUri(true)
                 ->build();
-            $this->redirectToUri($uri);
+            return $this->responseFactory->createResponse(307)
+                ->withHeader('Location', $uri);
         }
     }
 
@@ -135,10 +122,13 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      *
      * @return void
      */
-    public function formAction()
+    public function formAction(): ResponseInterface
     {
         if ($_REQUEST['inavlid']) {
             $this->view->assign('inavlid', 1);
+            
         }
+        
+        return $this->htmlResponse();
     }
 }
