@@ -6,7 +6,6 @@ use TYPO3\CMS\Core\Crypto\PasswordHashing\InvalidPasswordHashException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\SessionService::class)->startSession();
 
 /***
  *
@@ -31,6 +30,8 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      */
     public function loadAction(): ResponseInterface
     {
+        GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\SessionService::class)->startSession();
+        
         $data = $GLOBALS['TSFE']->page;
         $pageUid = $data['uid'];
 
@@ -61,6 +62,9 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      */
     public function loginAction(): ResponseInterface
     {
+        GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\SessionService::class)->startSession();
+        
+        
         $params = $this->request->getParsedBody()['tx_nsprotectsite_nsprotectsiteform'];
         
         $data = $GLOBALS['TSFE']->page;
@@ -124,6 +128,8 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
      */
     public function formAction(): ResponseInterface
     {
+        GeneralUtility::makeInstance(\TYPO3\CMS\Install\Service\SessionService::class)->startSession();
+        
         if ($_REQUEST['inavlid']) {
             $this->view->assign('inavlid', 1);
             
