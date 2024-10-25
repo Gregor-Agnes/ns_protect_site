@@ -36,7 +36,7 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
         $pageUid = $data['uid'];
 
         if (isset($_SESSION['password-' . $pageUid . '-protect'])) {
-            return true;
+            return $this->htmlResponse();
         } else {
             $isActive = $data['tx_nsprotectsite_protection'];
             if ($isActive) {
@@ -51,7 +51,7 @@ class ProtectPagesController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionCon
                     ->withHeader('Location', $uri);
             }
         }
-        return true;
+        return $this->htmlResponse();
     }
 
     /**
